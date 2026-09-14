@@ -1,0 +1,6 @@
+{
+  "name": "NicheCare - Multi-Niche AI Symptom Checker",
+  "description": "Specialized clinical AI symptom checker supporting Pediatric, Maternal, and Chronic Condition modes with strict red-flag triage, cited medical knowledge bases, and dual reading levels.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
