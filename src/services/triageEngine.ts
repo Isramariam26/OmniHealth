@@ -52,6 +52,50 @@ export function evaluateRedFlags(
       rationale = 'Extreme lethargy (unresponsive or difficult to arouse) or nuchal rigidity with fever are emergency indicators of central nervous system infection (meningitis).';
       action = 'Call 911 or proceed immediately to the Emergency Room.';
     }
+  } else if (payload.mode === 'adult') {
+    const adultData = payload.adultData;
+    const tempF = adultData?.tempFahrenheit || 0;
+
+    // Rule 1: Acute Coronary Syndrome (ACS) / Cardiac Emergency
+    if (
+      adultData?.chestPainType === 'crushing_radiating' ||
+      (adultData?.chestPainType === 'pressure_tightness' && adultData?.breathingDifficulty === 'at_rest_severe')
+    ) {
+      triggered.push('Acute Coronary Syndrome (ACS) / Ischemic Chest Pain');
+      rationale = 'Crushing substernal chest discomfort or chest pressure radiating to arm/jaw or accompanied by severe dyspnea represents a high-probability cardiac emergency requiring immediate 12-lead ECG, troponin, and cath lab readiness.';
+      action = 'Call 911 immediately. Rest quietly and chew non-enteric aspirin if cleared by emergency dispatch.';
+    }
+
+    // Rule 2: Acute Stroke / Neurological Deficit (FAST)
+    if (
+      adultData?.facialDroopOrArmWeakness ||
+      adultData?.slurredSpeechOrConfusion ||
+      adultData?.suddenThunderclapHeadache
+    ) {
+      triggered.push('Acute Stroke / Sudden Neurological Deficit');
+      rationale = 'Sudden unilateral facial droop, arm weakness, speech difficulty, or thunderclap headache indicates emergent cerebrovascular accident or intracranial hemorrhage requiring emergent non-contrast head CT and stroke team activation.';
+      action = 'Call 911 immediately. Note the exact time symptoms started for acute thrombolytic window.';
+    }
+
+    // Rule 3: Severe Sepsis / Acute Systemic Compromise
+    if (
+      (tempF >= 103.0 && adultData?.slurredSpeechOrConfusion) ||
+      (adultData?.breathingDifficulty === 'at_rest_severe' && tempF >= 102.0)
+    ) {
+      triggered.push('Severe Sepsis / Acute Systemic Compromise');
+      rationale = 'High fever combined with altered mentation or severe respiratory distress fulfills critical systemic inflammatory response/qSOFA criteria with high risk for rapid clinical deterioration.';
+      action = 'Go to the nearest Emergency Department immediately.';
+    }
+
+    // Rule 4: Hypertensive Crisis in Adult
+    if (
+      (adultData?.systolicBP && adultData.systolicBP >= 180) ||
+      (adultData?.diastolicBP && adultData.diastolicBP >= 120)
+    ) {
+      triggered.push('Hypertensive Crisis (BP ≥ 180/120)');
+      rationale = 'Marked systolic pressure ≥ 180 mmHg or diastolic ≥ 120 mmHg presents immediate danger for acute intracranial hemorrhage, dissecting aortic aneurysm, or acute coronary syndrome.';
+      action = 'Call 911 or proceed to the nearest Emergency Department immediately.';
+    }
   } else if (payload.mode === 'maternal') {
     const matData = payload.maternalData;
 
@@ -179,7 +223,7 @@ export async function runTriagePipeline(
       },
       citations: relevantCitations,
       evaluationAudit: {
-        protocolEngine: 'NicheCare Clinical Decision Engine v2.4 (Hardcoded Safety Layer)',
+        protocolEngine: 'OmniHealth AI Clinical Decision Engine v2.4 (Hardcoded Safety Layer)',
         severityEnforced: true,
         timestamp,
         modePartition: payload.mode
@@ -267,6 +311,72 @@ export async function runTriagePipeline(
         'Run a cool-mist humidifier in the child’s room to soothe airway passages.',
         'Ensure continuous hydration with breastmilk, formula, or small sips of water for older children.',
         'Allow extra rest and monitor for any emergence of fever, rapid breathing, or ear pulling.'
+      ];
+    }
+  } else if (payload.mode === 'adult') {
+    const adultData = payload.adultData;
+    const tempF = adultData?.tempFahrenheit ?? 98.6;
+    const chest = adultData?.chestPainType;
+    const breathing = adultData?.breathingDifficulty;
+    const severeAbdomen = adultData?.severeAbdominalPain;
+
+    if (
+      payload.severity === 'severe' ||
+      chest === 'pressure_tightness' ||
+      breathing === 'at_rest_severe' ||
+      severeAbdomen ||
+      tempF >= 103.0 ||
+      (adultData?.systolicBP && adultData.systolicBP >= 160)
+    ) {
+      urgencyTier = 'HIGH_ALERT';
+      protocolCode = 'ACEP-ADULT-HIGH-ALERT';
+      protocolName = 'ACEP / AHA Adult Clinical Triage Protocol: High Alert Evaluation';
+      candidateConsiderations = [
+        {
+          name: severeAbdomen
+            ? 'Acute Abdomen / Severe Visceral Pathology'
+            : chest === 'pressure_tightness'
+            ? 'Cardiopulmonary Symptom Evaluation (Rule out ACS/PE)'
+            : 'Acute Adult Febrile or Cardiorespiratory Illness',
+          tier: 'High Alert',
+          rationale: 'Symptoms exceed safe outpatient self-management thresholds. Same-day clinical assessment, diagnostic vitals, and workup are required.'
+        }
+      ];
+      clinicalEscalationNotice = 'Contact your primary care physician immediately today or visit an urgent care center.';
+      homeCareGuidance = undefined;
+    } else if (
+      tempF >= 100.4 ||
+      payload.severity === 'moderate' ||
+      breathing === 'on_exertion' ||
+      chest === 'mild_sharp'
+    ) {
+      urgencyTier = 'MODERATE';
+      protocolCode = 'ACP-ADULT-ACUTE-02';
+      protocolName = 'ACP Adult Acute Care Protocol: Outpatient Evaluation';
+      candidateConsiderations = [
+        {
+          name: 'Viral Respiratory Syndrome / Acute Bronchial or Musculoskeletal Strain',
+          tier: 'Moderate Concern',
+          rationale: 'Moderate symptom severity without acute cardiopulmonary red flags. Provider evaluation recommended within 24 to 48 hours.'
+        }
+      ];
+      clinicalEscalationNotice = 'Contact your primary care clinic or advice nurse within 24 hours.';
+    } else {
+      urgencyTier = 'LOW_HOME_CARE';
+      protocolCode = 'CDC-ADULT-SELF-CARE';
+      protocolName = 'ACP / CDC Adult Self-Management Protocol: Viral Upper Respiratory Illness';
+      candidateConsiderations = [
+        {
+          name: 'Mild Viral Upper Respiratory Syndrome / Routine Malaise',
+          tier: 'Low Urgency',
+          rationale: 'Absence of high fever, normal breathing at rest, and mild self-limiting presentation.'
+        }
+      ];
+      homeCareGuidance = [
+        'Prioritize rest and maintain generous oral hydration (water, warm broths, herbal teas).',
+        'Over-the-counter pain or fever relievers (such as acetaminophen or ibuprofen) may be used according to package directions if needed.',
+        'Use saline nasal rinses or steam inhalation to alleviate upper airway congestion.',
+        'Monitor for red flags such as chest pain, difficulty breathing, or fever exceeding 102°F.'
       ];
     }
   } else if (payload.mode === 'maternal') {
@@ -427,7 +537,7 @@ export async function runTriagePipeline(
   // Both share the exact same clinical urgency, protocol findings, and severity constraints!
   let plainExplanation = {
     headline: urgencyTier === 'HIGH_ALERT'
-      ? `Contact Your Doctor Promptly (${payload.mode === 'pediatric' ? 'Pediatrician' : payload.mode === 'maternal' ? 'OB-GYN' : 'Specialist'})`
+      ? `Contact Your Doctor Promptly (${payload.mode === 'pediatric' ? 'Pediatrician' : payload.mode === 'maternal' ? 'OB-GYN' : payload.mode === 'adult' ? 'Primary Care Doctor' : 'Specialist'})`
       : urgencyTier === 'MODERATE'
       ? 'Schedule a Check-In with Your Doctor'
       : 'Safe for Home Care and Monitoring',
@@ -456,6 +566,7 @@ export async function runTriagePipeline(
     recommendedAction: clinicalEscalationNotice || 'Continue structured outpatient monitoring; escalate per protocol thresholds.',
     vitalThresholds: [
       payload.mode === 'pediatric' ? 'Pediatric red line: Temp ≥ 100.4°F in <3m, stridor, or cyanosis' :
+      payload.mode === 'adult' ? 'Adult red line: Crushing chest pain, FAST stroke symptoms, resting dyspnea, BP ≥ 180/120' :
       payload.mode === 'maternal' ? 'Maternal red line: BP ≥ 160/110, severe headache with aura, heavy bleeding' :
       'Chronic red line: Blood glucose > 300 with ketones, PEF < 50%, BP > 180/120'
     ]
@@ -527,7 +638,7 @@ export async function runTriagePipeline(
     outbreakSignal: primaryOutbreakSignal,
     outbreakSignals: activeSignals,
     evaluationAudit: {
-      protocolEngine: 'NicheCare Multimodal Triage Engine v2.4 (Schmitt-Thompson / ACOG / ADA)',
+      protocolEngine: 'OmniHealth AI Multimodal Triage Engine v2.4 (Schmitt-Thompson / ACOG / ADA)',
       severityEnforced: true,
       timestamp,
       modePartition: payload.mode

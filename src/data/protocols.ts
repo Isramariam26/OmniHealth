@@ -30,6 +30,35 @@ export const RED_FLAG_RULES: RedFlagRule[] = [
     rationale: 'Classic presentation of acute central nervous system infection requiring immediate lumbar puncture and intravenous antibiotics.'
   },
 
+  // Adult Red Flags (Age 18+)
+  {
+    id: 'adult-rf-1',
+    mode: 'adult',
+    title: 'Acute Coronary Syndrome (ACS) / Ischemic Chest Pain',
+    clinicalCriteria: 'Substernal chest pressure, squeezing, or heaviness radiating to left arm, neck, or jaw, accompanied by shortness of breath, diaphoresis, or lightheadedness.',
+    sourceProtocol: 'AHA/ACC Guideline for the Evaluation and Diagnosis of Chest Pain',
+    immediateAction: 'Call 911 immediately. Chew non-enteric coated aspirin (325 mg) if advised by dispatch and not allergic.',
+    rationale: 'High suspicion for acute myocardial infarction requiring emergent cardiac catheterization and reperfusion.'
+  },
+  {
+    id: 'adult-rf-2',
+    mode: 'adult',
+    title: 'Acute Ischemic Stroke / Neurological Deficit (FAST)',
+    clinicalCriteria: 'Sudden facial droop, unilateral arm/leg weakness, acute slurred speech/aphasia, or sudden severe "thunderclap" headache.',
+    sourceProtocol: 'AHA/ASA Guidelines for the Early Management of Patients With Acute Ischemic Stroke',
+    immediateAction: 'Call 911 immediately. Note the exact time symptoms started for potential thrombolytic (tPA/TNK) candidacy.',
+    rationale: 'Time-critical brain ischemia or intracranial hemorrhage; every minute of untreated large-vessel stroke destroys millions of neurons.'
+  },
+  {
+    id: 'adult-rf-3',
+    mode: 'adult',
+    title: 'Severe Adult Sepsis / qSOFA Tripwire',
+    clinicalCriteria: 'High fever (>103°F) or hypothermia with acute confusion/lethargy, respiratory rate > 22 bpm, or systolic BP < 90 mmHg.',
+    sourceProtocol: 'Surviving Sepsis Campaign: International Guidelines for Management of Sepsis and Septic Shock',
+    immediateAction: 'Proceed to the nearest Emergency Department immediately for IV fluid resuscitation and broad-spectrum antimicrobial coverage.',
+    rationale: 'Rapidly progressive dysregulated host response to infection with high short-term mortality risk.'
+  },
+
   // Maternal Red Flags
   {
     id: 'mat-rf-1',
@@ -117,6 +146,35 @@ export const KNOWLEDGE_BASE_CITATIONS: CitationItem[] = [
     sourceDoc: 'Oral Rehydration Therapy (ORT) Evidence Review',
     keyTakeaway: 'In mild viral gastroenteritis, small, frequent sips of balanced oral rehydration solutions (5–10 mL every 5 minutes) prevent dehydration far better than plain water, apple juice, or commercial sports drinks.',
     guidelineYear: '2023'
+  },
+
+  // Adult Citations (Age 18+)
+  {
+    id: 'cit-adult-1',
+    mode: 'adult',
+    title: 'Guideline for the Evaluation and Diagnosis of Chest Pain',
+    authoritativeBody: 'American Heart Association (AHA) & American College of Cardiology (ACC)',
+    sourceDoc: 'Circulation 2021;144:e368–e454 (AHA/ACC Clinical Practice Guideline)',
+    keyTakeaway: 'Chest pain or pressure in adults—especially with radiation to shoulder, arm, neck, or jaw, or with dyspnea—requires prompt emergency 12-lead ECG and troponin testing to differentiate non-cardiac etiology from acute coronary syndrome.',
+    guidelineYear: '2021-2024'
+  },
+  {
+    id: 'cit-adult-2',
+    mode: 'adult',
+    title: 'Adult Sepsis & Systemic Inflammatory Response Clinical Policy',
+    authoritativeBody: 'American College of Emergency Physicians (ACEP) / Surviving Sepsis',
+    sourceDoc: 'Annals of Emergency Medicine & Critical Care Medicine Protocols',
+    keyTakeaway: 'Adults presenting with fever, tachypnea, tachycardia, or altered mentation should be evaluated using quick Sequential Organ Failure Assessment (qSOFA) to identify occult organ dysfunction early.',
+    guidelineYear: '2024'
+  },
+  {
+    id: 'cit-adult-3',
+    mode: 'adult',
+    title: 'Adult Acute Respiratory Infection & Outpatient Triage',
+    authoritativeBody: 'American College of Physicians (ACP) / CDC',
+    sourceDoc: 'Appropriate Antibiotic Use for Acute Respiratory Tract Infection in Adults',
+    keyTakeaway: 'Uncomplicated acute bronchitis, common cold, and viral pharyngitis in healthy non-elderly adults are primarily self-limiting. Supportive symptomatic relief and watchful waiting are first-line unless red flags or pneumonia signs emerge.',
+    guidelineYear: '2023-2024'
   },
 
   // Maternal Citations

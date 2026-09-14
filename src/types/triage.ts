@@ -1,4 +1,4 @@
-export type TriageMode = 'pediatric' | 'maternal' | 'chronic';
+export type TriageMode = 'pediatric' | 'adult' | 'maternal' | 'chronic';
 
 export type UrgencyTier = 'EMERGENCY' | 'HIGH_ALERT' | 'MODERATE' | 'LOW_HOME_CARE';
 
@@ -30,6 +30,12 @@ export interface PatientProfile {
     recentVaccine48h?: boolean;
     vaccineName?: string;
     allergies?: string[];
+  };
+  adultSpecific?: {
+    smoker?: boolean;
+    vitalSignsKnown?: boolean;
+    knownHypertension?: boolean;
+    knownHeartCondition?: boolean;
   };
   maternalSpecific?: {
     isPregnant: boolean;
@@ -137,6 +143,18 @@ export interface SymptomPayload {
     breathingEffort: 'normal' | 'fast_breathing' | 'rib_retractions_grunting' | 'stridor_blue_lips';
     stiffNeck: boolean;
     recentVaccine48h: boolean;
+  };
+  adultData?: {
+    tempFahrenheit?: number;
+    chestPainType: 'none' | 'mild_sharp' | 'pressure_tightness' | 'crushing_radiating';
+    breathingDifficulty: 'normal' | 'on_exertion' | 'at_rest_severe';
+    facialDroopOrArmWeakness: boolean;
+    slurredSpeechOrConfusion: boolean;
+    suddenThunderclapHeadache: boolean;
+    severeAbdominalPain: boolean;
+    systolicBP?: number;
+    diastolicBP?: number;
+    heartRateBpm?: number;
   };
   maternalData?: {
     isPostpartum: boolean;

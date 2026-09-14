@@ -35,6 +35,8 @@ export const RedFlagAlert: React.FC<RedFlagAlertProps> = ({
         ? `${localCity} Children's Emergency Department`
         : profile.mode === 'maternal'
         ? `${localCity} Women's & Obstetric Emergency Center`
+        : profile.mode === 'adult'
+        ? `${localCity} Adult Emergency & Trauma Center`
         : `${localCity} Regional Medical Center & ER`,
       distance: '1.4 miles',
       driveTime: '5 mins',
@@ -102,20 +104,20 @@ export const RedFlagAlert: React.FC<RedFlagAlertProps> = ({
       </div>
 
       {/* Clinical Tripwire Details & Why */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-5">
-        <div className="flex items-center gap-2 text-slate-800 font-bold text-base border-b border-slate-100 pb-3">
-          <ShieldAlert className="w-5 h-5 text-red-600" />
+      <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-800 space-y-5 transition-colors">
+        <div className="flex items-center gap-2 text-slate-800 dark:text-slate-100 font-bold text-base border-b border-slate-100 dark:border-slate-800 pb-3">
+          <ShieldAlert className="w-5 h-5 text-red-600 dark:text-red-400" />
           <span>Clinical Reason for Emergency Escalation</span>
         </div>
 
         <div className="space-y-3">
           {result.redFlagsTriggered.map((flag, idx) => (
-            <div key={idx} className="p-4 rounded-xl bg-red-50/70 border border-red-200 text-red-950">
+            <div key={idx} className="p-4 rounded-xl bg-red-50/70 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 text-red-950 dark:text-red-200">
               <div className="font-extrabold text-sm flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-red-600"></span>
+                <span className="w-2 h-2 rounded-full bg-red-600 dark:bg-red-400"></span>
                 {flag}
               </div>
-              <p className="text-xs text-red-900 mt-1.5 leading-relaxed">
+              <p className="text-xs text-red-900 dark:text-red-300 mt-1.5 leading-relaxed">
                 {result.candidateConsiderations[0]?.rationale || 'Meets protocol emergency intervention thresholds.'}
               </p>
             </div>
@@ -123,48 +125,48 @@ export const RedFlagAlert: React.FC<RedFlagAlertProps> = ({
         </div>
 
         {/* What to tell the triage nurse */}
-        <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-          <div className="text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+        <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800">
+          <div className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
             What to tell the triage nurse / paramedic:
           </div>
-          <p className="text-xs text-slate-800 italic bg-white p-3 rounded-lg border border-slate-200">
-            "{profile.name} ({profile.mode === 'pediatric' ? `${profile.ageYears ?? 1} years old` : profile.mode === 'maternal' ? 'obstetric patient' : 'chronic disease patient'}) is presenting with {result.redFlagsTriggered.join(' and ')}. Our clinical triage check triggered an immediate emergency red-flag."
+          <p className="text-xs text-slate-800 dark:text-slate-200 italic bg-white dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
+            "{profile.name} ({profile.mode === 'pediatric' ? `${profile.ageYears ?? 1} years old child` : profile.mode === 'adult' ? `${profile.ageYears ?? 35} years old adult` : profile.mode === 'maternal' ? 'obstetric patient' : 'chronic disease patient'}) is presenting with {result.redFlagsTriggered.join(' and ')}. Our clinical triage check triggered an immediate emergency red-flag."
           </p>
         </div>
 
         {/* Local Emergency Facilities Nearby */}
         <div>
-          <div className="text-xs font-bold uppercase tracking-wider text-slate-700 mb-3 flex items-center justify-between">
+          <div className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-3 flex items-center justify-between">
             <span>Verified Local Facilities Near {localCity} ({localZip})</span>
-            <span className="text-teal-600 font-semibold text-[11px]">Auto-localized</span>
+            <span className="text-teal-600 dark:text-teal-400 font-semibold text-[11px]">Auto-localized</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {nearestFacilities.map((fac, idx) => (
-              <div key={idx} className="p-4 rounded-xl border border-slate-200 hover:border-slate-300 transition-colors bg-white shadow-2xs">
+              <div key={idx} className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-colors bg-white dark:bg-slate-900/90 shadow-2xs">
                 <div className="flex items-start justify-between">
                   <div>
-                    <h4 className="font-bold text-sm text-slate-900 flex items-center gap-1.5">
-                      <Building2 className="w-4 h-4 text-slate-500" />
+                    <h4 className="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-1.5">
+                      <Building2 className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                       {fac.name}
                     </h4>
-                    <p className="text-xs text-slate-500 mt-0.5">{fac.address}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{fac.address}</p>
                   </div>
                   {fac.isSpecialty && (
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800">
                       Specialty ER
                     </span>
                   )}
                 </div>
 
-                <div className="mt-3 flex items-center justify-between pt-2 border-t border-slate-100 text-xs text-slate-600 font-medium">
+                <div className="mt-3 flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-300 font-medium">
                   <span className="flex items-center gap-1">
                     <Clock className="w-3.5 h-3.5 text-slate-400" />
                     {fac.driveTime} ({fac.distance})
                   </span>
                   <a
                     href={`tel:${fac.phone.replace(/[^0-9]/g, '')}`}
-                    className="font-bold text-teal-700 hover:underline"
+                    className="font-bold text-teal-700 dark:text-teal-400 hover:underline"
                   >
                     {fac.phone}
                   </a>
@@ -175,10 +177,10 @@ export const RedFlagAlert: React.FC<RedFlagAlertProps> = ({
         </div>
 
         {/* Back / Restart Action */}
-        <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+        <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
           <button
             onClick={onReset}
-            className="text-xs font-semibold text-slate-600 hover:text-slate-900 flex items-center gap-1.5 p-2 rounded-lg hover:bg-slate-100 transition-colors"
+            className="text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex items-center gap-1.5 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Return to Symptom Intake Form</span>
